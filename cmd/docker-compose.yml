@@ -10,6 +10,7 @@ services:
         - DB_USER=user1
         - DB_PASSWORD=password
         - DB_NAME=app
+        - INPUT_FILE=files/input.txt
   db:
     build:
       context: ../db
