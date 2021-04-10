@@ -1,0 +1,23 @@
+version: '3.1'
+services:
+  app:
+    build:
+      context: ../app
+      dockerfile: Dockerfile
+      args:
+        - DB_HOST=127.0.0.1
+        - DB_PORT=5432
+        - DB_USER=user1
+        - DB_PASSWORD=password
+        - DB_NAME=app
+  db:
+    build:
+      context: ../db
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: user1
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: app
