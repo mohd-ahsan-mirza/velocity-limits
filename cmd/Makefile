@@ -3,7 +3,8 @@ build:
 	docker-compose build --no-cache
 run:
 	docker-compose up -d
-	docker run -it --rm cmd_app
+	sleep 10
+	docker run -it --network=cmd_default --rm cmd_app
 clean:
 	docker-compose down
 

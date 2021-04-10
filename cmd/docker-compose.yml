@@ -5,12 +5,14 @@ services:
       context: ../app
       dockerfile: Dockerfile
       args:
-        - DB_HOST=127.0.0.1
+        - DB_HOST=cmd_db_1
         - DB_PORT=5432
         - DB_USER=user1
         - DB_PASSWORD=password
         - DB_NAME=app
         - INPUT_FILE=files/input.txt
+    links:
+      - db
   db:
     build:
       context: ../db
