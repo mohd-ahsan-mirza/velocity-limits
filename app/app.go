@@ -21,11 +21,11 @@ func main() {
 	defer db.Close()
 
 	ctx := context.Background()
-
 	tx, txErr := db.BeginTx(ctx, nil)
 	if txErr != nil {
 		log.Fatal(txErr)
 	}
+
 	rows, qCtxErr := tx.QueryContext(ctx, "SELECT NOW();")
 	if qCtxErr != nil {
 		log.Fatal(qCtxErr)
@@ -51,6 +51,7 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		//fmt.Println(scanner.Text())
+
 	}
 	if scannerError := scanner.Err(); scannerError != nil {
 		log.Fatal(scannerError)
