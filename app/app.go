@@ -9,7 +9,7 @@ import (
 	"log"
 	"os"
 
-	"app/internal"
+	service "app/internal/service"
 
 	_ "github.com/lib/pq"
 )
@@ -24,7 +24,7 @@ func main() {
 	}
 	defer db.Close()
 
-	service := internal.New(db)
+	service := service.New(db)
 
 	ctx := context.Background()
 	tx, txErr := db.BeginTx(ctx, nil)
