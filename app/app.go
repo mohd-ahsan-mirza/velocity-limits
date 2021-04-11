@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"database/sql"
+	service "go/src/app/service/Service"
 	"log"
 	"os"
 
@@ -19,6 +20,8 @@ func main() {
 		log.Fatal("Failed to open a DB connection: ", dbOpenErr)
 	}
 	defer db.Close()
+
+	service.New(db)
 
 	ctx := context.Background()
 	tx, txErr := db.BeginTx(ctx, nil)
