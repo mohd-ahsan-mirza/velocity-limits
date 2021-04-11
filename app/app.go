@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"service"
+	"app/service"
 
 	_ "github.com/lib/pq"
 )
