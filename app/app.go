@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"context"
 	"database/sql"
-	service "go/src/app/service/Service"
 	"log"
 	"os"
+
+	"service"
 
 	_ "github.com/lib/pq"
 )
