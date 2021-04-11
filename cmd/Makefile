@@ -4,7 +4,7 @@ build:
 run:
 	docker-compose up -d
 	sleep 10
-	docker run -it --network=cmd_default --rm cmd_app
+	docker run -it --network=app-network --rm cmd_app
 clean:
 	docker-compose down
 
