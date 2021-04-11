@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"context"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
-	"app/service"
+	"app/internal"
 
 	_ "github.com/lib/pq"
 )
@@ -22,7 +24,7 @@ func main() {
 	}
 	defer db.Close()
 
-	service.New(db)
+	service := internal.New(db)
 
 	ctx := context.Background()
 	tx, txErr := db.BeginTx(ctx, nil)
@@ -54,8 +56,14 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		//fmt.Println(scanner.Text())
-
+		message := scanner.Text()
+		var response string
+		responseObj, _ := service.LoadFunds(message)
+		err := json.Unmarshal(responseObj, &response)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(response)
 	}
 	if scannerError := scanner.Err(); scannerError != nil {
 		log.Fatal(scannerError)
