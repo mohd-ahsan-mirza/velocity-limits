@@ -4,10 +4,10 @@ import "time"
 
 //LoadTransactionRecord for db records
 type LoadTransactionRecord struct {
-	id              int
-	customerID      int
-	loadAmount      float64
-	transactionTime time.Time
+	ID              string    `json:"id"`
+	CustomerID      string    `json:"customer_id"`
+	LoadAmount      string    `json:"load_amount"`
+	TransactionTime time.Time `json:"time"`
 }
 
 // Db interface

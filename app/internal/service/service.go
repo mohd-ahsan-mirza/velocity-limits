@@ -4,22 +4,41 @@ import (
 	"app/internal"
 	"database/sql"
 	"encoding/json"
-	"log"
+	"strings"
+
+	dbsql "app/internal/dbsql"
 )
 
 type service struct {
-	db *sql.DB
+	db internal.Db
 }
 
 //New method
 func New(db *sql.DB) internal.Service {
-	return &service{db: db}
+	return &service{db: dbsql.New(db)}
 }
 
-func (s *service) LoadFunds(request string) ([]byte, error) {
-	response, responseErr := json.Marshal(request)
-	if responseErr != nil {
-		log.Fatal(responseErr)
+func (s *service) LoadFunds(request string) (bool, []byte, error) {
+	request = strings.ReplaceAll(request, "$", "")
+	loadTransactionRecord := internal.LoadTransactionRecord{}
+	json.Unmarshal([]byte(request), &loadTransactionRecord)
+	result, resultErr := s.db.InsertLoadTransactionRecord(&loadTransactionRecord)
+
+	if resultErr != nil {
+		if strings.Contains(resultErr.Error(), "duplicate key value") {
+			return true, nil, nil
+		} else {
+			return false, nil, resultErr
+		}
 	}
-	return response, nil
+
+	var responseStr string
+	if result {
+		responseStr = `{"accepted": true}`
+	} else {
+		responseStr = `{"accepted": false}`
+	}
+
+	response, _ := json.Marshal(responseStr)
+	return false, response, nil
 }
