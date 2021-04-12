@@ -83,7 +83,6 @@ func (s *dbsql) GetAllWeeklyRecordsForLatestTransactionByCustomerID(customerID i
 		if err != nil {
 			log.Fatal(err)
 		}
-		//layout := "2000-01-27T01:56:24Z"
 		transactionTime, _ := time.Parse(time.RFC3339, transactionTime)
 
 		loadTransactionRecords = append(loadTransactionRecords,
