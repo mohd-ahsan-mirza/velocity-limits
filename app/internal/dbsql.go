@@ -13,5 +13,5 @@ type LoadTransactionRecord struct {
 // Db interface
 type Db interface {
 	InsertLoadTransactionRecord(*LoadTransactionRecord) (bool, error)
-	GetAllWeeklyRecordsForLatestTransactionByCustomerID(int) []LoadTransactionRecord
+	GetAllRecordsForLatestTransactionByCustomerID(string, int) []LoadTransactionRecord
 }

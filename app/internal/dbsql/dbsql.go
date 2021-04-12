@@ -47,7 +47,7 @@ func (s *dbsql) InsertLoadTransactionRecord(record *internal.LoadTransactionReco
 	return false, nil
 }
 
-func (s *dbsql) GetAllWeeklyRecordsForLatestTransactionByCustomerID(customerID int) []internal.LoadTransactionRecord {
+func (s *dbsql) GetAllRecordsForLatestTransactionByCustomerID(timeInterval string, customerID int) []internal.LoadTransactionRecord {
 	sqlStatement := `SELECT
 		id,
 		customer_id,
@@ -57,9 +57,9 @@ func (s *dbsql) GetAllWeeklyRecordsForLatestTransactionByCustomerID(customerID i
 		load_transaction_history
 	WHERE
 		customer_id = $1
-		AND date_trunc('week', transaction_time) = (
+		AND date_trunc($2, transaction_time) = (
 			SELECT
-				date_trunc('week', (
+				date_trunc($2, (
 						SELECT
 							transaction_time FROM load_transaction_history
 						WHERE
@@ -67,7 +67,7 @@ func (s *dbsql) GetAllWeeklyRecordsForLatestTransactionByCustomerID(customerID i
 						ORDER BY
 							customer_id, transaction_time DESC
 						LIMIT 1)));`
-	rows, err := s.db.Query(sqlStatement, customerID)
+	rows, err := s.db.Query(sqlStatement, customerID, timeInterval)
 	if err != nil {
 		log.Fatal(err)
 	}

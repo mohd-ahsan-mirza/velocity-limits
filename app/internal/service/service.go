@@ -41,6 +41,11 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 			`","customer_id":"` + loadTransactionRecord.CustomerID + `","accepted": false}`
 	}
 
+	// if loadTransactionRecord.CustomerID == "800" {
+	// 	customerID, _ := strconv.Atoi(loadTransactionRecord.CustomerID)
+	// 	fmt.Println(s.db.GetAllRecordsForLatestTransactionByCustomerID("day", customerID))
+	// }
+
 	response, _ := json.Marshal(responseStr)
 	return false, response, nil
 }
