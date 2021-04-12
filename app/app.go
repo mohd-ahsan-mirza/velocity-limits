@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -24,26 +23,6 @@ func main() {
 	defer db.Close()
 
 	service := service.New(db)
-
-	ctx := context.Background()
-	tx, txErr := db.BeginTx(ctx, nil)
-	if txErr != nil {
-		log.Fatal(txErr)
-	}
-	rows, qCtxErr := tx.QueryContext(ctx, "SELECT NOW();")
-	if qCtxErr != nil {
-		log.Fatal(qCtxErr)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var name string
-		if err := rows.Scan(&name); err != nil {
-			// Check for a scan error.
-			// Query rows will be closed with defer.
-			log.Fatal(err)
-		}
-		println(name)
-	}
 
 	file, fileOpenErr := os.Open(os.Getenv("INPUT_FILE"))
 	if fileOpenErr != nil {
