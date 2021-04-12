@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 
@@ -41,7 +40,7 @@ func main() {
 			continue
 		}
 		_ = json.Unmarshal(responseObj, &response)
-		fmt.Println(response)
+		//fmt.Println(response)
 	}
 	if scannerError := scanner.Err(); scannerError != nil {
 		log.Fatal(scannerError)

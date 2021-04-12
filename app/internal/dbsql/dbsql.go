@@ -3,7 +3,9 @@ package db
 import (
 	"app/internal"
 	"database/sql"
+	"log"
 	"strconv"
+	"time"
 )
 
 type dbsql struct {
@@ -43,4 +45,54 @@ func (s *dbsql) InsertLoadTransactionRecord(record *internal.LoadTransactionReco
 		return true, nil
 	}
 	return false, nil
+}
+
+func (s *dbsql) GetAllWeeklyRecordsForLatestTransactionByCustomerID(customerID int) []internal.LoadTransactionRecord {
+	sqlStatement := `SELECT
+		id,
+		customer_id,
+		load_amount,
+		transaction_time
+	FROM
+		load_transaction_history
+	WHERE
+		customer_id = $1
+		AND date_trunc('week', transaction_time) = (
+			SELECT
+				date_trunc('week', (
+						SELECT
+							transaction_time FROM load_transaction_history
+						WHERE
+							customer_id = $1
+						ORDER BY
+							customer_id, transaction_time DESC
+						LIMIT 1)));`
+	rows, err := s.db.Query(sqlStatement, customerID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var loadTransactionRecords []internal.LoadTransactionRecord
+	var id string
+	var custID string
+	var loadAmount string
+	var transactionTime string
+	for rows.Next() {
+		err := rows.Scan(&id, &custID, &loadAmount, &transactionTime)
+		if err != nil {
+			log.Fatal(err)
+		}
+		//layout := "2000-01-27T01:56:24Z"
+		transactionTime, _ := time.Parse(time.RFC3339, transactionTime)
+
+		loadTransactionRecords = append(loadTransactionRecords,
+			internal.LoadTransactionRecord{ID: id, CustomerID: custID,
+				LoadAmount: loadAmount, TransactionTime: transactionTime})
+	}
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	return loadTransactionRecords
 }
