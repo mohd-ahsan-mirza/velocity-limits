@@ -22,6 +22,9 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 	request = strings.ReplaceAll(request, "$", "")
 	loadTransactionRecord := internal.LoadTransactionRecord{}
 	json.Unmarshal([]byte(request), &loadTransactionRecord)
+
+	//rowsDaily := s.db.GetAllRecordsForLatestTransactionByCustomerID("day", customerID)
+
 	result, resultErr := s.db.InsertLoadTransactionRecord(&loadTransactionRecord)
 
 	if resultErr != nil {
@@ -40,11 +43,6 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		responseStr = `{"id":"` + loadTransactionRecord.ID +
 			`","customer_id":"` + loadTransactionRecord.CustomerID + `","accepted": false}`
 	}
-
-	// if loadTransactionRecord.CustomerID == "800" {
-	// 	customerID, _ := strconv.Atoi(loadTransactionRecord.CustomerID)
-	// 	fmt.Println(s.db.GetAllRecordsForLatestTransactionByCustomerID("day", customerID))
-	// }
 
 	response, _ := json.Marshal(responseStr)
 	return false, response, nil
