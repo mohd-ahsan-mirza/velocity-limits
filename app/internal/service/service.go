@@ -34,9 +34,11 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 
 	var responseStr string
 	if result {
-		responseStr = `{"accepted": true}`
+		responseStr = `{"id":"` + loadTransactionRecord.ID +
+			`","customer_id":"` + loadTransactionRecord.CustomerID + `","accepted": true}`
 	} else {
-		responseStr = `{"accepted": false}`
+		responseStr = `{"id":"` + loadTransactionRecord.ID +
+			`","customer_id":"` + loadTransactionRecord.CustomerID + `","accepted": false}`
 	}
 
 	response, _ := json.Marshal(responseStr)
