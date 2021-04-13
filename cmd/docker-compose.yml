@@ -30,20 +30,6 @@ services:
     container_name: db
     networks:
       - app-network
-  testdb:
-    build:
-      context: ../db
-      dockerfile: Dockerfile
-    ports:
-      - "5431:5432"
-    restart: always
-    environment:
-      POSTGRES_USER: user1
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: app
-    container_name: testdb
-    networks:
-      - app-network
 networks:
   app-network:
    name: app-network
