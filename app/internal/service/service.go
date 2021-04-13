@@ -4,10 +4,10 @@ import (
 	"app/internal"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"sort"
 	"strings"
+	"time"
 
 	dbsql "app/internal/dbsql"
 )
@@ -31,15 +31,21 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 	}
 
 	records := s.db.GetAllRecordsForLatestTransactionByCustomerID("week", loadTransactionRecord.CustomerID)
-	if loadTransactionRecord.CustomerID == "834" {
-		sort.Slice(records, func(i, j int) bool {
-			return records[i].TransactionTime.After(records[j].TransactionTime)
-		})
-		fmt.Println(records)
+	// sorting the records by latest transaction time so the last transaction date will be the first record in the array
+	sort.Slice(records, func(i, j int) bool {
+		return records[i].TransactionTime.After(records[j].TransactionTime)
+	})
+	var lastTransactionTimeStamp time.Time
+	if len(records) > 0 {
+		lastTransactionTimeStamp = records[0].TransactionTime
+
+		// A maximum of $20,000 can be loaded per week
+		// A maximum of 3 loads can be performed per day, regardless of amount
+		// A maximum of $5,000 can be loaded per day
+
 	}
 
 	result, resultErr := s.db.InsertLoadTransactionRecord(&loadTransactionRecord)
-
 	if resultErr != nil {
 		log.Fatal(resultErr)
 	}
@@ -52,7 +58,6 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		responseStr = `{"id":"` + loadTransactionRecord.ID +
 			`","customer_id":"` + loadTransactionRecord.CustomerID + `","accepted": false}`
 	}
-
 	response, _ := json.Marshal(responseStr)
 	return false, response, nil
 }
