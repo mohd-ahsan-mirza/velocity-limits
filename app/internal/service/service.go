@@ -4,6 +4,7 @@ import (
 	"app/internal"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"sort"
 	"strings"
@@ -44,15 +45,17 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 	// If the customer is loading funds the first time none of the following checks are required
 	if len(records) > 0 {
 		latestTransactionTimeStamp := loadTransactionRecord.TransactionTime
-		var allTransactionRecordsOfLastTransactionDate []internal.LoadTransactionRecord
+		var allTransactionRecordsOfLoadTransactionDate []internal.LoadTransactionRecord
 
 		for _, record := range records {
 			if DateEqual(latestTransactionTimeStamp, record.TransactionTime) {
-				allTransactionRecordsOfLastTransactionDate = append(allTransactionRecordsOfLastTransactionDate, record)
+				allTransactionRecordsOfLoadTransactionDate = append(allTransactionRecordsOfLoadTransactionDate, record)
 			}
 		}
 
 		// A maximum of $20,000 can be loaded per week
+		totalLoadedAmountOfTheWeek := SumUpLoadAmountsofTransactionRecords(allTransactionRecordsOfLoadTransactionDate)
+		fmt.Println(totalLoadedAmountOfTheWeek)
 		// A maximum of 3 loads can be performed per day, regardless of amount
 		// A maximum of $5,000 can be loaded per day
 	}
