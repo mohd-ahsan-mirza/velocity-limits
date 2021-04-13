@@ -48,13 +48,13 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		var allTransactionRecordsOfLoadTransactionDate []internal.LoadTransactionRecord
 
 		for _, record := range records {
-			if DateEqual(latestTransactionTimeStamp, record.TransactionTime) {
+			if internal.DateEqual(latestTransactionTimeStamp, record.TransactionTime) {
 				allTransactionRecordsOfLoadTransactionDate = append(allTransactionRecordsOfLoadTransactionDate, record)
 			}
 		}
 
 		// A maximum of $20,000 can be loaded per week
-		totalLoadedAmountOfTheWeek := SumUpLoadAmountsofTransactionRecords(allTransactionRecordsOfLoadTransactionDate)
+		totalLoadedAmountOfTheWeek := internal.SumUpLoadAmountsofTransactionRecords(allTransactionRecordsOfLoadTransactionDate)
 		fmt.Println(totalLoadedAmountOfTheWeek)
 		// A maximum of 3 loads can be performed per day, regardless of amount
 		// A maximum of $5,000 can be loaded per day

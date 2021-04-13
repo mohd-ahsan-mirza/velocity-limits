@@ -1,10 +1,28 @@
-package service
+package internal
 
 import (
-	"app/internal"
+	"log"
 	"strconv"
 	"time"
 )
+
+// ParseFloat parsing string to float
+func ParseFloat(input string) float64 {
+	result, err := strconv.ParseFloat(input, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return result
+}
+
+// ParseInt parsing string to int
+func ParseInt(input string) int {
+	result, err := strconv.Atoi(input)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return result
+}
 
 // DateEqual Check if two dates are equal
 func DateEqual(date1, date2 time.Time) bool {
@@ -14,7 +32,7 @@ func DateEqual(date1, date2 time.Time) bool {
 }
 
 // SumUpLoadAmountsofTransactionRecords for to add all load amounts for transaction records
-func SumUpLoadAmountsofTransactionRecords(loadTransactionRecords []internal.LoadTransactionRecord) float64 {
+func SumUpLoadAmountsofTransactionRecords(loadTransactionRecords []LoadTransactionRecord) float64 {
 	result := 0.00
 	for _, record := range loadTransactionRecords {
 		loadAmount, _ := strconv.ParseFloat(record.LoadAmount, 64)

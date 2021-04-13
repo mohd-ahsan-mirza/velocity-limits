@@ -4,7 +4,6 @@ import (
 	"app/internal"
 	"database/sql"
 	"log"
-	"strconv"
 	"time"
 )
 
@@ -18,18 +17,9 @@ func New(db *sql.DB) internal.Db {
 }
 
 func (s *dbsql) InsertLoadTransactionRecord(record *internal.LoadTransactionRecord) (bool, error) {
-	id, idErr := strconv.Atoi(record.ID)
-	if idErr != nil {
-		return false, idErr
-	}
-	customerID, customerIDErr := strconv.Atoi(record.CustomerID)
-	if customerIDErr != nil {
-		return false, customerIDErr
-	}
-	loadAmount, loadAmountErr := strconv.ParseFloat(record.LoadAmount, 64)
-	if loadAmountErr != nil {
-		return false, loadAmountErr
-	}
+	id := internal.ParseInt(record.ID)
+	customerID := internal.ParseInt(record.CustomerID)
+	loadAmount := internal.ParseFloat(record.LoadAmount)
 
 	sqlStatement := `
 	INSERT INTO load_transaction_history (id, customer_id, load_amount, transaction_time)
@@ -48,10 +38,7 @@ func (s *dbsql) InsertLoadTransactionRecord(record *internal.LoadTransactionReco
 }
 
 func (s *dbsql) IsTransactionIDDuplicate(id string) bool {
-	ID, idErr := strconv.Atoi(id)
-	if idErr != nil {
-		log.Fatal(idErr)
-	}
+	ID := internal.ParseInt(id)
 
 	var count int
 
@@ -71,10 +58,7 @@ func (s *dbsql) IsTransactionIDDuplicate(id string) bool {
 // https://www.postgresqltutorial.com/postgresql-date_trunc/
 // Getting all records for the timeInterval of the transaction date by customer
 func (s *dbsql) GetAllRecordsForTransactionTimeByCustomerID(timeInterval string, custid string, latestTransactionTimeStamp time.Time) []internal.LoadTransactionRecord {
-	customerID, customerIDErr := strconv.Atoi(custid)
-	if customerIDErr != nil {
-		log.Fatal(customerIDErr)
-	}
+	customerID := internal.ParseInt(custid)
 
 	sqlStatement := `SELECT
 		id,
