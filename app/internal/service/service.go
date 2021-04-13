@@ -36,7 +36,7 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 	json.Unmarshal([]byte(request), &loadTransactionRecord)
 
 	// Checking if id already exists. If true, abandon the process
-	if s.db.IsTransactionIDDuplicate(loadTransactionRecord.ID) {
+	if s.db.IsTransactionIDDuplicateForCustomer(loadTransactionRecord.ID, loadTransactionRecord.CustomerID) {
 		return true, nil, nil
 	}
 

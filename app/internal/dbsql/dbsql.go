@@ -37,12 +37,13 @@ func (s *dbsql) InsertLoadTransactionRecord(record *internal.LoadTransactionReco
 	return false, nil
 }
 
-func (s *dbsql) IsTransactionIDDuplicate(id string) bool {
+func (s *dbsql) IsTransactionIDDuplicateForCustomer(id string, custID string) bool {
 	ID := internal.ParseInt(id)
+	customerID := internal.ParseInt(custID)
 
 	var count int
 
-	row := s.db.QueryRow("SELECT COUNT(*) FROM load_transaction_history WHERE id = $1;", ID)
+	row := s.db.QueryRow("SELECT COUNT(*) FROM load_transaction_history WHERE id = $1 AND customer_id = $2;", ID, customerID)
 	err := row.Scan(&count)
 	if err != nil {
 		log.Fatal(err)

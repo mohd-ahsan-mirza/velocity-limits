@@ -14,5 +14,5 @@ type LoadTransactionRecord struct {
 type Db interface {
 	InsertLoadTransactionRecord(*LoadTransactionRecord) (bool, error)
 	GetAllRecordsForTransactionTimeByCustomerID(string, string, time.Time) []LoadTransactionRecord
-	IsTransactionIDDuplicate(id string) bool
+	IsTransactionIDDuplicateForCustomer(id string, custID string) bool
 }
