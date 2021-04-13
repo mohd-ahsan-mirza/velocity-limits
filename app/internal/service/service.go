@@ -11,6 +11,15 @@ import (
 	dbsql "app/internal/dbsql"
 )
 
+// MAXWEEKLYLOADLIMIT Condition 1
+var MAXWEEKLYLOADLIMIT float64 = 20000
+
+// MAXDAILYLOADLIMIT Condition 2
+var MAXDAILYLOADLIMIT float64 = 5000
+
+// MAXDAILYTRANSACTIONLIMIT Condition 3
+var MAXDAILYTRANSACTIONLIMIT int = 3
+
 type service struct {
 	db internal.Db
 }
@@ -42,7 +51,7 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		return records[i].TransactionTime.After(records[j].TransactionTime)
 	})
 
-	// If the customer is loading funds the first time none of the following checks are required
+	// If the customer is loading funds the first time only need to check the daily number of transactions limit condition
 	if len(records) > 0 {
 		latestTransactionTimeStamp := loadTransactionRecord.TransactionTime
 		var allTransactionRecordsOfLoadTransactionDate []internal.LoadTransactionRecord
@@ -55,16 +64,20 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 
 		// A maximum of $20,000 can be loaded per week
 		totalLoadedAmountOfTheWeek := internal.SumUpLoadAmountsofTransactionRecords(allTransactionRecordsOfLoadTransactionDate)
-		if (totalLoadedAmountOfTheWeek + internal.ParseFloat(loadTransactionRecord.LoadAmount)) > 20000 {
+		if (totalLoadedAmountOfTheWeek + internal.ParseFloat(loadTransactionRecord.LoadAmount)) > MAXWEEKLYLOADLIMIT {
 			return false, response, nil
 		}
 		// A maximum of 3 loads can be performed per day, regardless of amount
-		if len(allTransactionRecordsOfLoadTransactionDate) >= 3 {
+		if len(allTransactionRecordsOfLoadTransactionDate) >= MAXDAILYTRANSACTIONLIMIT {
 			return false, response, nil
 		}
 		// A maximum of $5,000 can be loaded per day
 		totalLoadedAmountOftheDay := internal.SumUpLoadAmountsofTransactionRecords(allTransactionRecordsOfLoadTransactionDate)
-		if (totalLoadedAmountOftheDay + internal.ParseFloat(loadTransactionRecord.LoadAmount)) > 5000 {
+		if (totalLoadedAmountOftheDay + internal.ParseFloat(loadTransactionRecord.LoadAmount)) > MAXDAILYLOADLIMIT {
+			return false, response, nil
+		}
+	} else {
+		if (internal.ParseFloat(loadTransactionRecord.LoadAmount)) > MAXDAILYLOADLIMIT {
 			return false, response, nil
 		}
 	}
