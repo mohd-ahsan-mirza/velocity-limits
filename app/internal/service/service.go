@@ -4,7 +4,6 @@ import (
 	"app/internal"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"sort"
 	"strings"
@@ -34,6 +33,7 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 
 	unacceptedTransactionRespStr := `{"id":"` + loadTransactionRecord.ID +
 		`","customer_id":"` + loadTransactionRecord.CustomerID + `","accepted": false}`
+	response, _ := json.Marshal(unacceptedTransactionRespStr)
 
 	// Getting all transactions that happened within the week of the transaction date by customer
 	records := s.db.GetAllRecordsForTransactionTimeByCustomerID("week", loadTransactionRecord.CustomerID, loadTransactionRecord.TransactionTime)
@@ -55,9 +55,18 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 
 		// A maximum of $20,000 can be loaded per week
 		totalLoadedAmountOfTheWeek := internal.SumUpLoadAmountsofTransactionRecords(allTransactionRecordsOfLoadTransactionDate)
-		fmt.Println(totalLoadedAmountOfTheWeek)
+		if (totalLoadedAmountOfTheWeek + internal.ParseFloat(loadTransactionRecord.LoadAmount)) > 20000 {
+			return false, response, nil
+		}
 		// A maximum of 3 loads can be performed per day, regardless of amount
+		if len(allTransactionRecordsOfLoadTransactionDate) >= 3 {
+			return false, response, nil
+		}
 		// A maximum of $5,000 can be loaded per day
+		totalLoadedAmountOftheDay := internal.SumUpLoadAmountsofTransactionRecords(allTransactionRecordsOfLoadTransactionDate)
+		if (totalLoadedAmountOftheDay + internal.ParseFloat(loadTransactionRecord.LoadAmount)) > 5000 {
+			return false, response, nil
+		}
 	}
 
 	//Insert the record
@@ -65,14 +74,10 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 	if resultErr != nil {
 		log.Fatal(resultErr)
 	}
-
-	var responseStr string
 	if result {
-		responseStr = `{"id":"` + loadTransactionRecord.ID +
+		responseStr := `{"id":"` + loadTransactionRecord.ID +
 			`","customer_id":"` + loadTransactionRecord.CustomerID + `","accepted": true}`
-	} else {
-		responseStr = unacceptedTransactionRespStr
+		response, _ = json.Marshal(responseStr)
 	}
-	response, _ := json.Marshal(responseStr)
 	return false, response, nil
 }

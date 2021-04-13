@@ -35,7 +35,7 @@ func DateEqual(date1, date2 time.Time) bool {
 func SumUpLoadAmountsofTransactionRecords(loadTransactionRecords []LoadTransactionRecord) float64 {
 	result := 0.00
 	for _, record := range loadTransactionRecords {
-		loadAmount, _ := strconv.ParseFloat(record.LoadAmount, 64)
+		loadAmount := ParseFloat(record.LoadAmount)
 		result = result + loadAmount
 	}
 	return result
