@@ -4,7 +4,9 @@ import (
 	"app/internal"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
+	"sort"
 	"strings"
 
 	dbsql "app/internal/dbsql"
@@ -28,7 +30,13 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		return true, nil, nil
 	}
 
-	s.db.GetAllRecordsForLatestTransactionByCustomerID("week", loadTransactionRecord.CustomerID)
+	records := s.db.GetAllRecordsForLatestTransactionByCustomerID("week", loadTransactionRecord.CustomerID)
+	if loadTransactionRecord.CustomerID == "834" {
+		sort.Slice(records, func(i, j int) bool {
+			return records[i].TransactionTime.After(records[j].TransactionTime)
+		})
+		fmt.Println(records)
+	}
 
 	result, resultErr := s.db.InsertLoadTransactionRecord(&loadTransactionRecord)
 

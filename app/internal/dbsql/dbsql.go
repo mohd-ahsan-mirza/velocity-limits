@@ -92,7 +92,7 @@ func (s *dbsql) GetAllRecordsForLatestTransactionByCustomerID(timeInterval strin
 							customer_id = $1
 						ORDER BY
 							customer_id, transaction_time DESC
-						LIMIT 1)));`
+						LIMIT 1))) ORDER BY transaction_time;`
 	rows, err := s.db.Query(sqlStatement, customerID, timeInterval)
 	if err != nil {
 		log.Fatal(err)
