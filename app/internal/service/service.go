@@ -4,6 +4,7 @@ import (
 	"app/internal"
 	"database/sql"
 	"encoding/json"
+	"log"
 	"strings"
 
 	dbsql "app/internal/dbsql"
@@ -23,16 +24,16 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 	loadTransactionRecord := internal.LoadTransactionRecord{}
 	json.Unmarshal([]byte(request), &loadTransactionRecord)
 
-	//rowsDaily := s.db.GetAllRecordsForLatestTransactionByCustomerID("day", customerID)
+	if s.db.IsTransactionIDDuplicate(loadTransactionRecord.ID) {
+		return true, nil, nil
+	}
+
+	s.db.GetAllRecordsForLatestTransactionByCustomerID("week", loadTransactionRecord.CustomerID)
 
 	result, resultErr := s.db.InsertLoadTransactionRecord(&loadTransactionRecord)
 
 	if resultErr != nil {
-		if strings.Contains(resultErr.Error(), "duplicate key value") {
-			return true, nil, nil
-		} else {
-			return false, nil, resultErr
-		}
+		log.Fatal(resultErr)
 	}
 
 	var responseStr string

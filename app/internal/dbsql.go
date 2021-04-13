@@ -13,5 +13,6 @@ type LoadTransactionRecord struct {
 // Db interface
 type Db interface {
 	InsertLoadTransactionRecord(*LoadTransactionRecord) (bool, error)
-	GetAllRecordsForLatestTransactionByCustomerID(string, int) []LoadTransactionRecord
+	GetAllRecordsForLatestTransactionByCustomerID(string, string) []LoadTransactionRecord
+	IsTransactionIDDuplicate(id string) bool
 }

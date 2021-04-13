@@ -47,7 +47,33 @@ func (s *dbsql) InsertLoadTransactionRecord(record *internal.LoadTransactionReco
 	return false, nil
 }
 
-func (s *dbsql) GetAllRecordsForLatestTransactionByCustomerID(timeInterval string, customerID int) []internal.LoadTransactionRecord {
+func (s *dbsql) IsTransactionIDDuplicate(id string) bool {
+	ID, idErr := strconv.Atoi(id)
+	if idErr != nil {
+		log.Fatal(idErr)
+	}
+
+	var count int
+
+	row := s.db.QueryRow("SELECT COUNT(*) FROM load_transaction_history WHERE id = $1;", ID)
+	err := row.Scan(&count)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if count > 0 {
+		return true
+	}
+
+	return false
+}
+
+func (s *dbsql) GetAllRecordsForLatestTransactionByCustomerID(timeInterval string, custid string) []internal.LoadTransactionRecord {
+	customerID, customerIDErr := strconv.Atoi(custid)
+	if customerIDErr != nil {
+		log.Fatal(customerIDErr)
+	}
+
 	sqlStatement := `SELECT
 		id,
 		customer_id,
