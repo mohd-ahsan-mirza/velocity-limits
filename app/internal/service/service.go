@@ -32,6 +32,7 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		return true, nil, nil
 	}
 
+	// Getting all transactions that happened within the week of the last transaction
 	records := s.db.GetAllRecordsForLatestTransactionByCustomerID("week", loadTransactionRecord.CustomerID)
 	// sorting the records by latest transaction time so the last transaction date will be the first record in the array
 	sort.Slice(records, func(i, j int) bool {
