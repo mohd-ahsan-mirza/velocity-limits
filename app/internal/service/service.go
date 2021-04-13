@@ -34,7 +34,7 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 	unacceptedTransactionRespStr := `{"id":"` + loadTransactionRecord.ID +
 		`","customer_id":"` + loadTransactionRecord.CustomerID + `","accepted": false}`
 
-	// Getting all transactions that happened within the week of the last transaction
+	// Getting all transactions that happened within the week of the transaction date by customer
 	records := s.db.GetAllRecordsForTransactionTimeByCustomerID("week", loadTransactionRecord.CustomerID, loadTransactionRecord.TransactionTime)
 	// sorting the records by latest transaction time so the last transaction date will be the first record in the array
 	sort.Slice(records, func(i, j int) bool {
