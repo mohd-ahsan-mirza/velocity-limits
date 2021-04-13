@@ -4,7 +4,6 @@ import (
 	"app/internal"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"sort"
 	"strings"
@@ -36,7 +35,7 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		`","customer_id":"` + loadTransactionRecord.CustomerID + `","accepted": false}`
 
 	// Getting all transactions that happened within the week of the last transaction
-	records := s.db.GetAllRecordsForLatestTransactionByCustomerID("week", loadTransactionRecord.CustomerID)
+	records := s.db.GetAllRecordsForTransactionTimeByCustomerID("week", loadTransactionRecord.CustomerID, loadTransactionRecord.TransactionTime)
 	// sorting the records by latest transaction time so the last transaction date will be the first record in the array
 	sort.Slice(records, func(i, j int) bool {
 		return records[i].TransactionTime.After(records[j].TransactionTime)
@@ -50,7 +49,6 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		for _, record := range records {
 			if DateEqual(latestTransactionTimeStamp, record.TransactionTime) {
 				allTransactionRecordsOfLastTransactionDate = append(allTransactionRecordsOfLastTransactionDate, record)
-				fmt.Println(allTransactionRecordsOfLastTransactionDate)
 			}
 		}
 
