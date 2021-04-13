@@ -70,7 +70,7 @@ func (s *dbsql) IsTransactionIDDuplicate(id string) bool {
 
 // https://www.postgresqltutorial.com/postgresql-date_trunc/
 // Getting all records for the timeInterval of the last transaction date by customer
-func (s *dbsql) GetAllRecordsForLatestTransactionByCustomerID(timeInterval string, custid string) []internal.LoadTransactionRecord {
+func (s *dbsql) GetAllRecordsForTransactionTimeByCustomerID(timeInterval string, custid string, latestTransactionTimeStamp time.Time) []internal.LoadTransactionRecord {
 	customerID, customerIDErr := strconv.Atoi(custid)
 	if customerIDErr != nil {
 		log.Fatal(customerIDErr)
@@ -85,17 +85,8 @@ func (s *dbsql) GetAllRecordsForLatestTransactionByCustomerID(timeInterval strin
 		load_transaction_history
 	WHERE
 		customer_id = $1
-		AND date_trunc($2, transaction_time) = (
-			SELECT
-				date_trunc($2, (
-						SELECT
-							transaction_time FROM load_transaction_history
-						WHERE
-							customer_id = $1
-						ORDER BY
-							customer_id, transaction_time DESC
-						LIMIT 1))) ORDER BY transaction_time;`
-	rows, err := s.db.Query(sqlStatement, customerID, timeInterval)
+		AND date_trunc($2, transaction_time) = date_trunc($2, $3::timestamptz) ORDER BY transaction_time;`
+	rows, err := s.db.Query(sqlStatement, customerID, timeInterval, latestTransactionTimeStamp)
 	if err != nil {
 		log.Fatal(err)
 	}
