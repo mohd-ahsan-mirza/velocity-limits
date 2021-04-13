@@ -24,8 +24,10 @@ func New(db *sql.DB) internal.Service {
 func (s *service) LoadFunds(request string) (bool, []byte, error) {
 	request = strings.ReplaceAll(request, "$", "")
 	loadTransactionRecord := internal.LoadTransactionRecord{}
+	// Load the request into the struct
 	json.Unmarshal([]byte(request), &loadTransactionRecord)
 
+	// Checking if id already exists. If true, abandon the process
 	if s.db.IsTransactionIDDuplicate(loadTransactionRecord.ID) {
 		return true, nil, nil
 	}
@@ -36,15 +38,16 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		return records[i].TransactionTime.After(records[j].TransactionTime)
 	})
 	var lastTransactionTimeStamp time.Time
+	// If the customer is loading funds the first time none of the following checks are required
 	if len(records) > 0 {
 		lastTransactionTimeStamp = records[0].TransactionTime
 
 		// A maximum of $20,000 can be loaded per week
 		// A maximum of 3 loads can be performed per day, regardless of amount
 		// A maximum of $5,000 can be loaded per day
-
 	}
 
+	//Insert the record
 	result, resultErr := s.db.InsertLoadTransactionRecord(&loadTransactionRecord)
 	if resultErr != nil {
 		log.Fatal(resultErr)

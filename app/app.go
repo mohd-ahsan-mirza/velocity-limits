@@ -14,6 +14,7 @@ import (
 
 func main() {
 
+	// Open connection string
 	dbConnectionString := "postgres://" + os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + "/" + os.Getenv("DB_NAME") + "?sslmode=disable"
 	db, dbOpenErr := sql.Open("postgres", dbConnectionString)
 	if dbOpenErr != nil {
@@ -21,8 +22,10 @@ func main() {
 	}
 	defer db.Close()
 
+	// Initiating the service
 	service := service.New(db)
 
+	//Opening and reading the input file
 	file, fileOpenErr := os.Open(os.Getenv("INPUT_FILE"))
 	if fileOpenErr != nil {
 		log.Fatal(fileOpenErr)
@@ -32,6 +35,7 @@ func main() {
 	for scanner.Scan() {
 		message := scanner.Text()
 		var response string
+		// Load funds
 		duplicateRecord, responseObj, loadFundsErr := service.LoadFunds(message)
 		if loadFundsErr != nil {
 			log.Fatal(loadFundsErr)
