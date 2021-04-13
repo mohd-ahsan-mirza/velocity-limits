@@ -37,6 +37,27 @@ func (s *dbsql) InsertLoadTransactionRecord(record *internal.LoadTransactionReco
 	return false, nil
 }
 
+func (s *dbsql) InsertUnacceptedLoadTransactionRecord(record *internal.LoadTransactionRecord) (bool, error) {
+	id := internal.ParseInt(record.ID)
+	customerID := internal.ParseInt(record.CustomerID)
+	loadAmount := internal.ParseFloat(record.LoadAmount)
+
+	sqlStatement := `
+	INSERT INTO unaccepted_load_transactions_history (id, customer_id, load_amount, transaction_time)
+	VALUES ($1, $2, $3, $4)`
+	result, err := s.db.Exec(sqlStatement, id,
+		customerID, loadAmount,
+		record.TransactionTime)
+	if err != nil {
+		return false, err
+	}
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (s *dbsql) IsTransactionIDDuplicateForCustomer(id string, custID string) bool {
 	ID := internal.ParseInt(id)
 	customerID := internal.ParseInt(custID)
@@ -44,6 +65,25 @@ func (s *dbsql) IsTransactionIDDuplicateForCustomer(id string, custID string) bo
 	var count int
 
 	row := s.db.QueryRow("SELECT COUNT(*) FROM load_transaction_history WHERE id = $1 AND customer_id = $2;", ID, customerID)
+	err := row.Scan(&count)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if count > 0 {
+		return true
+	}
+
+	return false
+}
+
+func (s *dbsql) IsTransactionIDInUnacceptableTransacationLoadHistoryForCustomer(id string, custID string) bool {
+	ID := internal.ParseInt(id)
+	customerID := internal.ParseInt(custID)
+
+	var count int
+
+	row := s.db.QueryRow("SELECT COUNT(*) FROM unaccepted_load_transactions_history WHERE id = $1 AND customer_id = $2;", ID, customerID)
 	err := row.Scan(&count)
 	if err != nil {
 		log.Fatal(err)

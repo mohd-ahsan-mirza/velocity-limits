@@ -36,7 +36,8 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 	json.Unmarshal([]byte(request), &loadTransactionRecord)
 
 	// Checking if id already exists. If true, abandon the process
-	if s.db.IsTransactionIDDuplicateForCustomer(loadTransactionRecord.ID, loadTransactionRecord.CustomerID) {
+	if s.db.IsTransactionIDDuplicateForCustomer(loadTransactionRecord.ID, loadTransactionRecord.CustomerID) ||
+		s.db.IsTransactionIDInUnacceptableTransacationLoadHistoryForCustomer(loadTransactionRecord.ID, loadTransactionRecord.CustomerID) {
 		return true, nil, nil
 	}
 
@@ -65,19 +66,35 @@ func (s *service) LoadFunds(request string) (bool, []byte, error) {
 		// A maximum of $20,000 can be loaded per week
 		totalLoadedAmountOfTheWeek := internal.SumUpLoadAmountsofTransactionRecords(allTransactionRecordsOfLoadTransactionDate)
 		if (totalLoadedAmountOfTheWeek + internal.ParseFloat(loadTransactionRecord.LoadAmount)) > MAXWEEKLYLOADLIMIT {
+			_, resultErr := s.db.InsertUnacceptedLoadTransactionRecord(&loadTransactionRecord)
+			if resultErr != nil {
+				log.Fatal(resultErr)
+			}
 			return false, response, nil
 		}
 		// A maximum of 3 loads can be performed per day, regardless of amount
 		if len(allTransactionRecordsOfLoadTransactionDate) >= MAXDAILYTRANSACTIONLIMIT {
+			_, resultErr := s.db.InsertUnacceptedLoadTransactionRecord(&loadTransactionRecord)
+			if resultErr != nil {
+				log.Fatal(resultErr)
+			}
 			return false, response, nil
 		}
 		// A maximum of $5,000 can be loaded per day
 		totalLoadedAmountOftheDay := internal.SumUpLoadAmountsofTransactionRecords(allTransactionRecordsOfLoadTransactionDate)
 		if (totalLoadedAmountOftheDay + internal.ParseFloat(loadTransactionRecord.LoadAmount)) > MAXDAILYLOADLIMIT {
+			_, resultErr := s.db.InsertUnacceptedLoadTransactionRecord(&loadTransactionRecord)
+			if resultErr != nil {
+				log.Fatal(resultErr)
+			}
 			return false, response, nil
 		}
 	} else {
 		if (internal.ParseFloat(loadTransactionRecord.LoadAmount)) > MAXDAILYLOADLIMIT {
+			_, resultErr := s.db.InsertUnacceptedLoadTransactionRecord(&loadTransactionRecord)
+			if resultErr != nil {
+				log.Fatal(resultErr)
+			}
 			return false, response, nil
 		}
 	}

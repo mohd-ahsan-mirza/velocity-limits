@@ -13,6 +13,8 @@ type LoadTransactionRecord struct {
 // Db interface
 type Db interface {
 	InsertLoadTransactionRecord(*LoadTransactionRecord) (bool, error)
+	InsertUnacceptedLoadTransactionRecord(*LoadTransactionRecord) (bool, error)
 	GetAllRecordsForTransactionTimeByCustomerID(string, string, time.Time) []LoadTransactionRecord
 	IsTransactionIDDuplicateForCustomer(id string, custID string) bool
+	IsTransactionIDInUnacceptableTransacationLoadHistoryForCustomer(id string, custID string) bool
 }
