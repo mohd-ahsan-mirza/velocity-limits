@@ -7,3 +7,9 @@
 
 ## Usage
 * CD in `cmd`
+* Run `make`
+
+## Note
+There is a pause of 10s in execution of the script to give the docker network to be fully built.
+
+## Results
