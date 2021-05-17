@@ -26,4 +26,4 @@ ENV INPUT_FILE $INPUT_FILE
 
 WORKDIR /go/src/app/internal
 
-CMD ["go","test"]
+CMD ["go","test","./..."]
